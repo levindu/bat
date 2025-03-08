@@ -32,6 +32,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/mattn/go-isatty"
 )
 
 const (
@@ -124,16 +126,11 @@ func main() {
 		defaultSetting.DumpBody = false
 	}
 	var stdin []byte
-	if runtime.GOOS != "windows" {
-		fi, err := os.Stdin.Stat()
+	if ! isatty.IsTerminal(os.Stdin.Fd()) {
+		var err error
+		stdin, err = ioutil.ReadAll(os.Stdin)
 		if err != nil {
-			panic(err)
-		}
-		if fi.Size() != 0 {
-			stdin, err = ioutil.ReadAll(os.Stdin)
-			if err != nil {
-				log.Fatal("Read from Stdin", err)
-			}
+			log.Fatal("Read from Stdin", err)
 		}
 	}
 
